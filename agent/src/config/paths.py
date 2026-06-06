@@ -5,6 +5,14 @@ from __future__ import annotations
 from pathlib import Path
 
 _DEFAULT_FILENAMES = ("agent.json", "agent.yaml", "agent.yml")
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]  # Vibe-Trading/
+
+
+def get_reports_dir() -> Path:
+    """Return and create the project-level reports directory."""
+    d = _PROJECT_ROOT / "reports"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 
 
 def get_runtime_root(config_path: Path | None = None) -> Path:

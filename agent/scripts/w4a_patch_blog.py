@@ -1,6 +1,6 @@
 """W4.a blog patcher: fill TBD placeholders in alpha-191-in-2026.html.
 
-Reads ~/.vibe-trading/reports/bench_summary.json (produced by w4a_run_benches.py)
+Reads <project>/reports/bench_summary.json (produced by w4a_run_benches.py)
 and patches the HTML in place.
 
 Substitutions performed:
@@ -26,7 +26,9 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[2]
 HTML_PATH = REPO / "wiki" / "research-lab" / "posts" / "alpha-191-in-2026.html"
-SUMMARY_PATH = Path.home() / ".vibe-trading" / "reports" / "bench_summary.json"
+from src.config.paths import get_reports_dir
+
+SUMMARY_PATH = get_reports_dir() / "bench_summary.json"
 
 GTJA_KEY = "gtja191_csi300"
 

@@ -683,7 +683,9 @@ def _render_html_manual(ctx: dict[str, Any]) -> str:
 
 
 def _default_output_dir() -> Path:
-    return Path.home() / ".vibe-trading" / "reports"
+    from src.config.paths import get_reports_dir
+
+    return get_reports_dir()
 
 
 def run_alpha_bench(**kwargs: Any) -> dict[str, Any]:
@@ -832,7 +834,7 @@ class AlphaBenchTool(BaseTool):
             },
             "output_dir": {
                 "type": "string",
-                "description": "Where to write the HTML report; default ~/.vibe-trading/reports/.",
+                "description": "Where to write the HTML report; default <project>/reports/.",
             },
         },
         "required": ["universe", "period"],

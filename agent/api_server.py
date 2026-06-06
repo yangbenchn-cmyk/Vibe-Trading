@@ -2018,14 +2018,16 @@ _SHADOW_ID_RE = __import__("re").compile(r"^shadow_[0-9a-f]{8}$")
 async def get_shadow_report(shadow_id: str, format: str = "html"):
     """Serve a rendered Shadow Account report (HTML by default, PDF if available).
 
-    Reports live under ``~/.vibe-trading/shadow_reports/<shadow_id>.{html,pdf}``.
+    Reports live under ``<project>/reports/<shadow_id>.{html,pdf}``.
     """
     if not _SHADOW_ID_RE.match(shadow_id):
         raise HTTPException(status_code=400, detail="invalid shadow_id")
     if format not in ("html", "pdf"):
         raise HTTPException(status_code=400, detail="format must be html or pdf")
 
-    reports_dir = Path.home() / ".vibe-trading" / "shadow_reports"
+    from src.config.paths import get_reports_dir
+
+    reports_dir = get_reports_dir()
     path = reports_dir / f"{shadow_id}.{format}"
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"Shadow report not found: {shadow_id}.{format}")

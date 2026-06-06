@@ -79,9 +79,10 @@ def write_run_card(
     )
     md_path.write_text(md_content, encoding="utf-8")
 
-    # Also copy to central reports directory
-    reports_dir = Path.home() / ".vibe-trading" / "reports"
-    reports_dir.mkdir(parents=True, exist_ok=True)
+    # Also copy to project reports directory
+    from src.config.paths import get_reports_dir
+
+    reports_dir = get_reports_dir()
     run_label = run_dir.name
     (reports_dir / f"{run_label}.md").write_text(md_content, encoding="utf-8")
 
