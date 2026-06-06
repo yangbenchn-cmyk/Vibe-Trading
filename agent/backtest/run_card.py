@@ -72,11 +72,19 @@ def write_run_card(
 
     json_path = run_dir / "run_card.json"
     md_path = run_dir / "run_card.md"
+    md_content = _render_markdown(card)
     json_path.write_text(
         json.dumps(card, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n",
         encoding="utf-8",
     )
-    md_path.write_text(_render_markdown(card), encoding="utf-8")
+    md_path.write_text(md_content, encoding="utf-8")
+
+    # Also copy to central reports directory
+    reports_dir = Path.home() / ".vibe-trading" / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    run_label = run_dir.name
+    (reports_dir / f"{run_label}.md").write_text(md_content, encoding="utf-8")
+
     return card
 
 

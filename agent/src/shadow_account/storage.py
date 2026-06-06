@@ -3,7 +3,8 @@
 Layout:
     ~/.vibe-trading/shadow_accounts/<shadow_id>.json   ShadowProfile
     ~/.vibe-trading/shadow_runs/<shadow_id>/           backtest run dir
-    ~/.vibe-trading/shadow_reports/<shadow_id>.pdf     rendered report
+    ~/.vibe-trading/reports/<shadow_id>.html           rendered report
+    ~/.vibe-trading/reports/<shadow_id>.pdf            rendered report
 """
 
 from __future__ import annotations
@@ -38,7 +39,7 @@ def runs_dir(shadow_id: str) -> Path:
 
 
 def reports_dir() -> Path:
-    d = _root() / "shadow_reports"
+    d = _root() / "reports"
     d.mkdir(parents=True, exist_ok=True)
     return d
 

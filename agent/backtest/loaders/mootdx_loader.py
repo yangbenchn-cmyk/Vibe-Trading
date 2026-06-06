@@ -85,7 +85,14 @@ class DataLoader:
     def _get_client(self):
         if self._client is None:
             from mootdx.quotes import Quotes
-            self._client = Quotes.factory(market="std")
+            from mootdx import config as _tdx_config
+
+            # BESTIP is often empty on first run, which causes Quotes.factory
+            # to fail on ``ip, port = ''``.  Grab the first listed server from
+            # the default config and pass it explicitly.
+            _hq_servers = _tdx_config.get("SERVER", {}).get("HQ", [])
+            _server = _hq_servers[0][1:] if _hq_servers else ("110.41.147.114", 7709)
+            self._client = Quotes.factory(market="std", server=_server, timeout=15)
         return self._client
 
     def fetch(
@@ -145,13 +152,10 @@ class DataLoader:
         symbol = code.split(".")[0]
         client = self._get_client()
 
-        # Daily has a native date-range API; intraday and weekly/monthly
-        # only expose offset-from-latest, so we page back through history
-        # until the first row of the page is older than start_date.
-        if interval == "1D":
-            df = client.get_k_data(code=symbol, start_date=start_date, end_date=end_date)
-            return self._normalize_daily(df)
-
+        # get_k_data() misses the latest trading day when called before TDX
+        # completes its end-of-day flush.  bars(frequency=4) always includes
+        # today's bar, so we route daily through the same paginated path as
+        # intraday/weekly/monthly.
         freq = _DAILY_FREQ.get(interval) or _INTRADAY_FREQ[interval]
         return self._fetch_bars_paginated(client, symbol, freq, start_date, end_date)
 
