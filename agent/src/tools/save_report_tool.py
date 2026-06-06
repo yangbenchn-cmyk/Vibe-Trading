@@ -6,6 +6,7 @@ regardless of the current run_dir.
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from src.agent.tools import BaseTool
@@ -24,34 +25,36 @@ class SaveReportTool(BaseTool):
     description = (
         "Save a report, analysis, or any text content to the project's "
         "reports/ directory. Use this whenever the user asks to save, "
-        "export, or download something."
+        "export, or download something. The file is automatically named "
+        "with a timestamp prefix; provide a short descriptive topic only."
     )
     parameters = {
         "type": "object",
         "properties": {
-            "filename": {
+            "topic": {
                 "type": "string",
-                "description": "Output filename including extension (e.g. 'AAPL_analysis.md', 'backtest_report.json')",
+                "description": "Short descriptive name for the report (e.g. 'AAPL_analysis', 'portfolio_review'). The tool auto-prepends a timestamp.",
             },
             "content": {
                 "type": "string",
                 "description": "Report content to write to the file.",
             },
         },
-        "required": ["filename", "content"],
+        "required": ["topic", "content"],
     }
     is_readonly = False
 
     def execute(self, **kwargs: Any) -> str:
-        filename = kwargs["filename"]
+        topic = kwargs["topic"]
         content = kwargs["content"]
 
-        reports_dir = get_reports_dir()
-        # Sanitize: strip path components, keep only the filename
-        safe_name = filename.replace("/", "_").replace("\\", "_").lstrip(".")
-        if not safe_name:
-            safe_name = "report.md"
+        # Auto-prefix with timestamp for consistent chronological sorting
+        ts = datetime.now().strftime("%Y%m%d_%H%M")
+        safe = topic.replace("/", "_").replace("\\", "_").replace(" ", "_").lstrip("._-")
+        if not safe:
+            safe = "report"
+        filename = f"{ts}_{safe}.md"
 
-        path = reports_dir / safe_name
+        path = get_reports_dir() / filename
         path.write_text(content, encoding="utf-8")
         return f"Report saved to {path}"
